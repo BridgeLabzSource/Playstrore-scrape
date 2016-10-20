@@ -3,18 +3,19 @@ var cheerio = require('cheerio');
 var request = require('request');
 var bodyParser = require('body-parser');
 var app = express();
-var searchLink = [];
+
 var wordOfDay = [];
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+firebase=require('./firbase.js');
 app.post('/game', function (req, res) {
     // allow access from other domains
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     var url = req.body.url;
-
+console.log(url);
     // use Cheerio to make request for play Store search
     request({
         method: 'GET',
@@ -23,19 +24,20 @@ app.post('/game', function (req, res) {
     }, function (err, response, html, callback) {
 
         if (err) return console.error(err);
-
+      var searchLink = [];
         // get the HTML body from google
         $ = cheerio.load(html);
         var href;
         $('a.card-click-target').each(function () {
             var a = $(this);
             href = a.attr('href');
+            console.log(href)
             if (href && href.indexOf('/store/apps/details?id=') != -1) {
                 searchLink.push({ key: href });
 
             }
 
-
+console.log('key',searchLink[0].key)
         })
         var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
         console.log('searchLink - ', finalserchlinks);
@@ -69,13 +71,28 @@ app.post('/game', function (req, res) {
             })
             // create an object
             wordOfDay.push({ gameTitle: title, Gametype: cat, datePublished: pubdata, fileSize: size, Info: des })
-            console.log('Data', wordOfDay);
+            // console.log('Data', wordOfDay);
             res.send(JSON.stringify(wordOfDay));
-        });
 
-        // return a JSON object as a response
+ 
+// //storing game details
+var gameRef = firebase.database().ref("Game/gameDetails");
+gameRef.push({
 
-        console.log('Data', wordOfDay);
+        gameTitle: title, 
+        Gametype: cat, 
+        datePublished: pubdata, 
+        fileSize: size, 
+        description: des
+    
+});
+
+// gameRef.orderByChild('gameTitle').equalTo(title).on(function(data){
+
+// })
+ });
+
+      
 
     });
 
@@ -84,7 +101,7 @@ app.post('/game', function (req, res) {
 });
 
 // start app on localhost port 3000
-var port = process.env.PORT || 3001;
+var port = process.env.PORT || 3002;
 app.listen(port, function () {
     console.log('listening on port ' + port);
 });
