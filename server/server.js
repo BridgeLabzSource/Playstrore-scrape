@@ -1,21 +1,23 @@
 var express = require('express');
+var path = require('path');
 var cheerio = require('cheerio');
 var request = require('request');
 var bodyParser = require('body-parser');
 var app = express();
 
-var wordOfDay = [];
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-firebase=require('./firbase.js');
+app.use(express.static(path.join(__dirname, '../client')));
+firebase = require('./firbase.js');
 app.post('/game', function (req, res) {
     // allow access from other domains
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     var url = req.body.url;
-console.log(url);
+    console.log(url);
     // use Cheerio to make request for play Store search
     request({
         method: 'GET',
@@ -24,10 +26,11 @@ console.log(url);
     }, function (err, response, html, callback) {
 
         if (err) return console.error(err);
-      var searchLink = [];
+
         // get the HTML body from google
         $ = cheerio.load(html);
         var href;
+        var searchLink = [];
         $('a.card-click-target').each(function () {
             var a = $(this);
             href = a.attr('href');
@@ -37,8 +40,9 @@ console.log(url);
 
             }
 
-console.log('key',searchLink[0].key)
+            console.log('key', searchLink[0].key)
         })
+
         var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
         console.log('searchLink - ', finalserchlinks);
         // use Cheerio to make request for game details
@@ -52,7 +56,7 @@ console.log('key',searchLink[0].key)
 
             // get the HTML body from WordThink.com
             $ = cheerio.load(html);
-
+            var wordOfDay = [];
             var main = $('.main-content')
             // getting game title class
             var t = main.find('.document-title');
@@ -72,33 +76,49 @@ console.log('key',searchLink[0].key)
             // create an object
             wordOfDay.push({ gameTitle: title, Gametype: cat, datePublished: pubdata, fileSize: size, Info: des })
             // console.log('Data', wordOfDay);
-            res.send(JSON.stringify(wordOfDay));
+            // res.send(JSON.stringify(wordOfDay));
 
- 
-// //storing game details
-var gameRef = firebase.database().ref("Game/gameDetails");
-gameRef.push({
 
-        gameTitle: title, 
-        Gametype: cat, 
-        datePublished: pubdata, 
-        fileSize: size, 
-        description: des
-    
-});
+            // //storing game details
+            var gameRef = firebase.database().ref("Game/gameDetails");
+            gameRef.push({
 
-// gameRef.orderByChild('gameTitle').equalTo(title).on(function(data){
+                gameTitle: title,
+                Gametype: cat,
+                datePublished: pubdata,
+                fileSize: size,
+                description: des
 
-// })
- });
+            });
 
-      
+            gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
+                var d=data.val();
+                res.send(d);
+                console.log("info", d);
+            })
+        });
+
+
 
     });
 
 
 
 });
+
+
+//retriving all game info
+
+app.get('/retrive',function(req,res){
+    console.log('jhgjkdfg')
+  var gameRef = firebase.database().ref("Game/gameDetails");  
+    gameRef.$loaded().then(function (obj) {
+        var data = obj;
+        console.log(data)        
+});
+
+});
+
 
 // start app on localhost port 3000
 var port = process.env.PORT || 3002;
