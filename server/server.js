@@ -13,11 +13,8 @@ app.use(bodyParser.urlencoded({
 app.use(express.static(path.join(__dirname, '../client')));
 firebase = require('./firbase.js');
 app.post('/game', function (req, res) {
-    // allow access from other domains
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+   
     var url = req.body.url;
-    console.log(url);
     // use Cheerio to make request for play Store search
     request({
         method: 'GET',
@@ -34,13 +31,10 @@ app.post('/game', function (req, res) {
         $('a.card-click-target').each(function () {
             var a = $(this);
             href = a.attr('href');
-            console.log(href)
             if (href && href.indexOf('/store/apps/details?id=') != -1) {
                 searchLink.push({ key: href });
 
             }
-
-            console.log('key', searchLink[0].key)
         })
 
         var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
@@ -82,7 +76,6 @@ app.post('/game', function (req, res) {
             // //storing game details
             var gameRef = firebase.database().ref("Game/gameDetails");
             gameRef.push({
-
                 gameTitle: title,
                 Gametype: cat,
                 datePublished: pubdata,
@@ -90,11 +83,12 @@ app.post('/game', function (req, res) {
                 description: des
 
             });
-
             gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
-                var d=data.val();
+              var d=data.val();
                 res.send(d);
                 console.log("info", d);
+            
+                
             })
         });
 
