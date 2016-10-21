@@ -85,16 +85,22 @@ app.post('/game', function (req, res) {
                         description: des
 
                     });
-                    var d = snapshot.val();
-                    console.log("info", d.title);
-                    res.send(d[title]);
+
+                    gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
+                        var d = data.val();
+                        res.send(d);
+                        console.log("info", d);
+                    })
+                   
                 }
+                
                 else {
                     console.log("That user already exists");
                     var d = snapshot.val();
                     console.log("info", d[title]);
                     res.send(d[title]);
                 }
+                
             });
         });
      });
