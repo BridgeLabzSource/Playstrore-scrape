@@ -74,11 +74,8 @@ angular.module('MyApp')
                     $http.post('http://localhost:3002/game', gameName).success(function (data) {
                         if (data) {
                             console.log(data)
-
                             as.push(data)
-
-
-                        }
+                          }
                         else {
                             toastr.error('error');
                         }

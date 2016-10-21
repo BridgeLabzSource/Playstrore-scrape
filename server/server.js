@@ -1,3 +1,4 @@
+
 var express = require('express');
 var path = require('path');
 var cheerio = require('cheerio');
@@ -5,16 +6,15 @@ var request = require('request');
 var bodyParser = require('body-parser');
 var app = express();
 
-
+//config--
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, '../client')));
 firebase = require('./firbase.js');
-app.post('/game', function (req, res) {
 
-    var url = req.body.url;
+//post call
+app.post('/game', function (req, res) {
+     var url = req.body.url;
     // use Cheerio to make request for play Store search
     request({
         method: 'GET',
@@ -69,27 +69,11 @@ app.post('/game', function (req, res) {
             })
             // create an object
             wordOfDay.push({ gameTitle: title, Gametype: cat, datePublished: pubdata, fileSize: size, Info: des })
-            // console.log('Data', wordOfDay);
-            // res.send(JSON.stringify(wordOfDay));
 
 
             // //storing game details
             var gameRef = firebase.database().ref("Game/gameDetails");
-            // gameRef.push({
-            //     gameTitle: title,
-            //     Gametype: cat,
-            //     datePublished: pubdata,
-            //     fileSize: size,
-            //     description: des
-
-            // });
-            // gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
-            //   var d=data.val();
-            //     res.send(d);
-            //     console.log("info", d);
-
-
-            // })
+            
             gameRef.once('value', function (snapshot) {
                 if (!snapshot.hasChild(title)) {
                     console.log("That user not exists");
@@ -112,34 +96,9 @@ app.post('/game', function (req, res) {
                     res.send(d[title]);
                 }
             });
-
-
-
-
         });
-
-
-
-    });
-
-
-
+     });
 });
-
-
-//retriving all game info
-
-app.get('/retrive', function (req, res) {
-    console.log('jhgjkdfg')
-    var gameRef = firebase.database().ref("Game/gameDetails");
-    gameRef.$loaded().then(function (obj) {
-        var data = obj;
-        console.log(data)
-    });
-
-});
-
-
 // start app on localhost port 3000
 var port = process.env.PORT || 3002;
 app.listen(port, function () {
