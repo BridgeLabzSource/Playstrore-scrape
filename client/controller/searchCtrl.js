@@ -1,6 +1,6 @@
 angular.module('MyApp')
 
-    .controller('searchCtrl', function ($scope, $http, Upload) {
+    .controller('searchCtrl', function ($scope, $http, Upload,toastr) {
         $scope.find = function () {
             var gameName = { 'url': this.name };
 
@@ -15,7 +15,7 @@ angular.module('MyApp')
 
                 }
                 else {
-                    console.log('error');
+                   toastr.error('error');
                 }
 
             })
@@ -29,7 +29,7 @@ angular.module('MyApp')
                 // FileReader are supported.
                 getAsText(file);
             } else {
-                alert('FileReader are not supported in this browser.');
+                 toastr.error('FileReader are not supported in this browser.');
             }
             function getAsText(fileToRead) {
                 var reader = new FileReader();
@@ -80,7 +80,7 @@ angular.module('MyApp')
 
                         }
                         else {
-                            console.log('error');
+                            toastr.error('error');
                         }
 
                     })
@@ -90,29 +90,14 @@ angular.module('MyApp')
 
             function errorHandler(evt) {
                 if (evt.target.error.name == "NotReadableError") {
-                    alert("Canno't read file !");
+                     toastr.error("Canno't read file !");
                 }
             }
 
 
 
 
-            //  if(file!==null){
-            //      Upload.upload({
-            //             url: 'http://localhost:3000/imageUpload',
-            //             data: {
-            //                 file: file,
-            //                 key:$stateParams.ProKey
-            //             }
-            //         }).then(function (response) {
-
-            //                 $scope.result = response.data;
-            //                  toastr.success($scope.result);
-            //                 console.log("hii", $scope.result);
-
-            //         });
-
-            //  }
+         
         }
 
 

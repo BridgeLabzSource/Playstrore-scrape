@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static(path.join(__dirname, '../client')));
 firebase = require('./firbase.js');
 app.post('/game', function (req, res) {
-   
+
     var url = req.body.url;
     // use Cheerio to make request for play Store search
     request({
@@ -75,21 +75,47 @@ app.post('/game', function (req, res) {
 
             // //storing game details
             var gameRef = firebase.database().ref("Game/gameDetails");
-            gameRef.push({
-                gameTitle: title,
-                Gametype: cat,
-                datePublished: pubdata,
-                fileSize: size,
-                description: des
+            // gameRef.push({
+            //     gameTitle: title,
+            //     Gametype: cat,
+            //     datePublished: pubdata,
+            //     fileSize: size,
+            //     description: des
 
+            // });
+            // gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
+            //   var d=data.val();
+            //     res.send(d);
+            //     console.log("info", d);
+
+
+            // })
+            gameRef.once('value', function (snapshot) {
+                if (!snapshot.hasChild(title)) {
+                    console.log("That user not exists");
+                    gameRef.child(title).set({
+                        gameTitle: title,
+                        Gametype: cat,
+                        datePublished: pubdata,
+                        fileSize: size,
+                        description: des
+
+                    });
+                    var d = snapshot.val();
+                    console.log("info", d.title);
+                    res.send(d[title]);
+                }
+                else {
+                    console.log("That user already exists");
+                    var d = snapshot.val();
+                    console.log("info", d[title]);
+                    res.send(d[title]);
+                }
             });
-            gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
-              var d=data.val();
-                res.send(d);
-                console.log("info", d);
-            
-                
-            })
+
+
+
+
         });
 
 
@@ -103,13 +129,13 @@ app.post('/game', function (req, res) {
 
 //retriving all game info
 
-app.get('/retrive',function(req,res){
+app.get('/retrive', function (req, res) {
     console.log('jhgjkdfg')
-  var gameRef = firebase.database().ref("Game/gameDetails");  
+    var gameRef = firebase.database().ref("Game/gameDetails");
     gameRef.$loaded().then(function (obj) {
         var data = obj;
-        console.log(data)        
-});
+        console.log(data)
+    });
 
 });
 

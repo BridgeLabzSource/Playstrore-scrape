@@ -1,4 +1,4 @@
-angular.module('MyApp', ['ui.router','ngFileUpload'])
+angular.module('MyApp', ['ui.router','ngFileUpload','toastr'])
 .config(function ($stateProvider, $urlRouterProvider) {
 /**
      * App routes
