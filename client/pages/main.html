@@ -21,10 +21,10 @@
 
   <!--<input type="file" id="fileLoader" name="file" file-model="myFile"  />-->
 <div class="container">
-<div class="col-md-3">
+<div class="col-sm-3">
   <form class="navbar-form" role="search">
     <div class="input-group add-on">
-      <input class="form-control" placeholder="Search" name="srch-term" ng-model="name" id="srch-term" type="text">
+      <input class="form-control" placeholder="Search Game...." name="srch-term" ng-model="name" id="srch-term" type="text">
       <div class="input-group-btn">
         <button class="btn btn-default" type="submit" ng-click="find()"><i class="glyphicon glyphicon-search"></i></button>
         
@@ -35,16 +35,18 @@
   </form>
   
 </div>
-<div class="col-md-9">
-  <button type="file" ngf-select="uploadFiles($file)" ng-model="file"
-  ngf-max-size="20MB" class="btn btn-primary" style="margin-right: 50px;" accept=".csv" >
-       <i class="fa fa-upload" aria-hidden="true"></i>
-UPLOAD FILE</button></div></div>
+<div class="col-sm-9">
+  <button type="file" ngf-select="uploadFiles($file)" ng-model="file" ngf-max-size="20MB" class="btn btn-primary" style="margin-right: 50px;"
+    accept=".csv"><i class="fa fa-upload" aria-hidden="true"></i>UPLOAD FILE
+  </button>
+</div>
+</div>
   
 
  
   </div> 
-  <div  >
+  <div class="container">
+  <div class="col-sm-12" >
      <table class="table">
   <thead class="thead-inverse">
     <tr >
@@ -68,6 +70,7 @@ UPLOAD FILE</button></div></div>
 </tbody>
 </table>
 </div>
+  </div>
   
     
   

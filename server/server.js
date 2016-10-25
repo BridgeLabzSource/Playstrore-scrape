@@ -8,13 +8,13 @@ var app = express();
 
 //config--
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../client')));
 firebase = require('./firbase.js');
 
 //post call
 app.post('/game', function (req, res) {
-     var url = req.body.url;
+    var url = req.body.url;
     // use Cheerio to make request for play Store search
     request({
         method: 'GET',
@@ -36,7 +36,9 @@ app.post('/game', function (req, res) {
 
             }
         })
-
+   
+   
+      //game link for seraching game detail
         var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
         console.log('searchLink - ', finalserchlinks);
         // use Cheerio to make request for game details
@@ -69,14 +71,40 @@ app.post('/game', function (req, res) {
             })
             // create an object
             wordOfDay.push({ gameTitle: title, Gametype: cat, datePublished: pubdata, fileSize: size, Info: des })
+ 
 
+ /**
+ *  give the status about game
+ */
+       var gameStatus=[];
+        //retriving package name and converting into unique number
+        var sp = searchLink[0].key.split('=')
+        var final = sp[1].split('.')
+        var pack = final[1];
+        console.log(pack);
+        var g = [];
+        for (var i = 0; i < pack.length; i++) {
+            g.push(pack.charCodeAt(i));
+        }
+        var s = '';
+        s = s + g.slice(0, 2);
+        var str2 = s.replace(/\,/g, "");
+        console.log(str2);
+  if(cat=='sports'){
+      gameStatus[str2]={type:'is sports game'}
+  }
+  else{
+      gameStatus[str2]={type:'is  not sports game'}
+  }
+
+  console.log(gameStatus[str2].type);
 
             // //storing game details
             var gameRef = firebase.database().ref("Game/gameDetails");
-            
+
             gameRef.once('value', function (snapshot) {
                 if (!snapshot.hasChild(title)) {
-                    console.log("That user not exists");
+                    console.log("That Game name not exists");
                     gameRef.child(title).set({
                         gameTitle: title,
                         Gametype: cat,
@@ -91,19 +119,19 @@ app.post('/game', function (req, res) {
                         res.send(d);
                         console.log("info", d);
                     })
-                   
+
                 }
-                
+
                 else {
-                    console.log("That user already exists");
+                    console.log("That Game name already exists");
                     var d = snapshot.val();
                     console.log("info", d[title]);
                     res.send(d[title]);
                 }
-                
+
             });
         });
-     });
+    });
 });
 // start app on localhost port 3000
 var port = process.env.PORT || 3002;
