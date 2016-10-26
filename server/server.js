@@ -4,6 +4,8 @@ var path = require('path');
 var cheerio = require('cheerio');
 var request = require('request');
 var bodyParser = require('body-parser');
+var redis = require("redis"),
+    client = redis.createClient();
 var app = express();
 
 //config--
@@ -36,9 +38,9 @@ app.post('/game', function (req, res) {
 
             }
         })
-   
-   
-      //game link for seraching game detail
+
+
+        //game link for seraching game detail
         var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
         console.log('searchLink - ', finalserchlinks);
         // use Cheerio to make request for game details
@@ -71,33 +73,50 @@ app.post('/game', function (req, res) {
             })
             // create an object
             wordOfDay.push({ gameTitle: title, Gametype: cat, datePublished: pubdata, fileSize: size, Info: des })
- 
 
- /**
- *  give the status about game
- */
-       var gameStatus=[];
-        //retriving package name and converting into unique number
-        var sp = searchLink[0].key.split('=')
-        var final = sp[1].split('.')
-        var pack = final[1];
-        console.log(pack);
-        var g = [];
-        for (var i = 0; i < pack.length; i++) {
-            g.push(pack.charCodeAt(i));
-        }
-        var s = '';
-        s = s + g.slice(0, 2);
-        var str2 = s.replace(/\,/g, "");
-        console.log(str2);
-  if(cat=='sports'){
-      gameStatus[str2]={type:'is sports game'}
-  }
-  else{
-      gameStatus[str2]={type:'is  not sports game'}
-  }
 
-  console.log(gameStatus[str2].type);
+            /**
+            *  give the status about game
+            */
+            var gameStatus = [];
+            //retriving package name and converting into unique number
+            var sp = searchLink[0].key.split('=')
+            var final = sp[1].split('.')
+            var pack = final[1];
+            console.log(pack);
+            var g = [];
+            for (var i = 0; i < pack.length; i++) {
+                g.push(pack.charCodeAt(i));
+            }
+            var s = '';
+            s = s + g.slice(0, 2);
+            var str2 = s.replace(/\,/g, "");
+            console.log(str2);
+            if (cat == 'sports') {
+                client.exists(str2, function (err, reply) {
+                    if (reply === 1) {
+                        console.log('exists :-It is Sport game ');
+                    } else {
+                        console.log('doesn\'t exist:- It is Sport game ');
+                        client.hset([str2, sp[1], "Is Sport game"], redis.print);
+                    }
+                });
+
+            }
+            else {
+                client.exists(str2, function (err, reply) {
+                    if (reply === 1) {
+                        console.log('exists :-It is Not Sport game ');
+                    } else {
+                        console.log('doesn\'t exist :- It is Not Sport game');
+                        client.hset([str2, sp[1], "It is Not Sport game"], redis.print);
+                    }
+                });
+
+
+            }
+
+
 
             // //storing game details
             var gameRef = firebase.database().ref("Game/gameDetails");
