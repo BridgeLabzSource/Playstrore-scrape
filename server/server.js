@@ -1,4 +1,3 @@
-
 var express = require('express');
 var path = require('path');
 var cheerio = require('cheerio');
@@ -17,6 +16,7 @@ firebase = require('./firbase.js');
 //post call
 app.post('/game', function (req, res) {
     var url = req.body.url;
+    console.log(url)
     // use Cheerio to make request for play Store search
     request({
         method: 'GET',
@@ -37,8 +37,8 @@ app.post('/game', function (req, res) {
                 searchLink.push({ key: href });
 
             }
-        })
-
+})
+      console.log(searchLink[0])
 
         //game link for seraching game detail
         var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
@@ -46,13 +46,13 @@ app.post('/game', function (req, res) {
         // use Cheerio to make request for game details
         var cat;
 
-        request({
+        request({  // 
             method: 'GET',
             url: finalserchlinks
         }, function (err, response, html, callback) {
             if (err) return console.error(err);
 
-            // get the HTML body from WordThink.com
+            // get the HTML body from google.com
             $ = cheerio.load(html);
             var wordOfDay = [];
             var main = $('.main-content')
@@ -86,39 +86,46 @@ app.post('/game', function (req, res) {
             console.log(pack);
             var g = [];
             for (var i = 0; i < pack.length; i++) {
-                g.push(pack.charCodeAt(i));
+             g.push(pack.charCodeAt(i));
             }
-            var s = '';
+            
+            // var hash = 5381;
+            // for (i = 0; i < pack.length; i++) {
+            //     hash = (hash * 33) ^ pack.charCodeAt(--i) /* hash * 33 + c */
+            // }
+           var s = '';
             s = s + g.slice(0, 2);
             var str2 = s.replace(/\,/g, "");
             console.log(str2);
-            if (cat == 'sports') {
-                client.exists(str2, function (err, reply) {
-                    if (reply === 1) {
-                        console.log('exists :-It is Sport game ');
-                    } else {
-                        console.log('doesn\'t exist:- It is Sport game ');
-                        client.hset([str2, sp[1], "Is Sport game"], redis.print);
-                    }
-                });
+              client.hset(['Sports', str2,pack], redis.print);
+            console.log(str2);
+            // if (cat == 'Sports') {
+            //     client.exists(str2, function (err, reply) {
+            //         if (reply === 1) {
+            //             console.log('exists :-It is Sport game ');
+            //         } else {
+            //             console.log('doesn\'t exist:- It is Sport game ');
+            //             client.hset([str2, sp[1], "Is Sport game"], redis.print);
+            //         }
+            //     });
 
-            }
-            else {
-                client.exists(str2, function (err, reply) {
-                    if (reply === 1) {
-                        console.log('exists :-It is Not Sport game ');
-                    } else {
-                        console.log('doesn\'t exist :- It is Not Sport game');
-                        client.hset([str2, sp[1], "It is Not Sport game"], redis.print);
-                    }
-                });
-
-
-            }
-
+            // }
+            // else {
+            //     client.exists(str2, function (err, reply) {
+            //         if (reply === 1) {
+            //             console.log('exists :-It is Not Sport game ');
+            //         } else {
+            //             console.log('doesn\'t exist :- It is Not Sport game');
+            //             client.hset([str2, sp[1], "It is Not Sport game"], redis.print);
+            //         }
+            //     });
 
 
-            // //storing game details
+            // }
+
+
+
+            //storing game details
             var gameRef = firebase.database().ref("Game/gameDetails");
 
             gameRef.once('value', function (snapshot) {
@@ -129,7 +136,8 @@ app.post('/game', function (req, res) {
                         Gametype: cat,
                         datePublished: pubdata,
                         fileSize: size,
-                        description: des
+                        description: des,
+                        pack:str2
 
                     });
 
@@ -153,7 +161,7 @@ app.post('/game', function (req, res) {
     });
 });
 // start app on localhost port 3000
-var port = process.env.PORT || 3002;
+var port = process.env.PORT || 3004;
 app.listen(port, function () {
     console.log('listening on port ' + port);
 });

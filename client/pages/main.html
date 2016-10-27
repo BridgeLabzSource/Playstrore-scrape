@@ -52,20 +52,24 @@
     <tr >
       <th>Sr No.</th>
       <th>Game Name</th>
+        <th>pack</th>
       <th>Game Type</th>
       <th>Game Size</th>
       <th>Date Published</th>
       <th>Descriptions</th>
+       
     </tr>
   </thead>
   <tbody>
     <tr ng-repeat="g in data">
       <th scope="row">{{$index + 1 }}</th>
       <td>{{g.gameTitle}}</td>
+       <td>{{g.pack}}</td>
       <td>{{g.Gametype}}</td>
       <td>{{g.fileSize}}</td>
       <td>{{g.datePublished}}</td>
       <td>{{g.description}}</td>
+     
     </tr>
 </tbody>
 </table>

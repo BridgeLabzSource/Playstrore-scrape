@@ -6,7 +6,7 @@ angular.module('MyApp')
 
 
             //sending game name to server
-            $http.post('http://localhost:3002/game', gameName).success(function (data) {
+            $http.post('http://localhost:3004/game', gameName).success(function (data) {
                 if (data) {
                     console.log(data)
                     var as = []
@@ -53,25 +53,26 @@ angular.module('MyApp')
                     tarr.push(allTextLines[i])
                 }
 
-                for (var j = 0; j < tarr.length; j++) {
-
-                }
+          
                 var h = tarr.toString();
                 var s = h.split(',')
-                console.log(s)
+                //  console.log('dfsd',s)
                 var ka = [];
                 var p = 0;
-                for (p = 3; p < s.length; p++) {
+                for (p = 6; p < s.length; p++) {
 
                     ka.push(s[p]);
-                    p++;
+                  p++;p++;p++;p++;
+                    
 
                 }
+            console.log('gh',ka)
                 var as = []
                 for (var i = 0; i < ka.length; i++) {
                     var gameName = { 'url': ka[i] };
-                    //sending game name to server
-                    $http.post('http://localhost:3002/game', gameName).success(function (data) {
+                    // console.log(gameName)
+                  //sending game name to server
+                    $http.post('http://localhost:3004/game', gameName).success(function (data) {
                         if (data) {
                             console.log(data)
                             as.push(data)
