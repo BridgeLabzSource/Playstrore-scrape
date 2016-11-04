@@ -1,10 +1,14 @@
 var express = require('express');
 var path = require('path');
+var fs = require("fs");
 var cheerio = require('cheerio');
 var request = require('request');
 var bodyParser = require('body-parser');
-var redis = require("redis"),
-    client = redis.createClient();
+var redis = require('redis');
+var Promise = require("bluebird");
+Promise.promisifyAll(require("redis"));
+var db = redis.createClient();
+
 var app = express();
 
 //config--
@@ -14,154 +18,272 @@ app.use(express.static(path.join(__dirname, '../client')));
 firebase = require('./firbase.js');
 
 //post call
-app.post('/game', function (req, res) {
+app.post('/getAppDetails', function (req, res) {
     var url = req.body.url;
     console.log(url)
+
+    var hash = 5387;
+    for (i = 0; i < url.length; i++) {
+        char = url.charCodeAt(i);
+        hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+    }
+    //Retriving last four digits 
+    var hashkey = hash.toString();
+    var finalhkey = hashkey.substr(hashkey.length - 3, hashkey.length)
+    console.log(finalhkey, 'j', hash)
+
     // use Cheerio to make request for play Store search
-    request({
+    //     request({
+    //         method: 'GET',
+    //         url: 'https://play.google.com/store/search?q=' + url
+
+    //     }, function (err, response, html, callback) {
+
+    //         if (err) return console.error(err);
+
+    //         // get the HTML body from google
+    //         $ = cheerio.load(html);
+    //         var href;
+    //         var searchLink = [];
+    //         $('a.card-click-target').each(function () {
+    //             var a = $(this);
+    //             href = a.attr('href');
+    //             if (href && href.indexOf('/store/apps/details?id=') != -1) {
+    //                 searchLink.push({ key: href });
+
+    //             }
+    // })
+    //       console.log(searchLink[0])
+
+    //game link for seraching game detail
+    var finalserchlinks = 'https://play.google.com/store/apps/details?id=' + url;
+    console.log('searchLink - ', finalserchlinks);
+    // use Cheerio to make request for game details
+    var cat;
+
+    request({  // 
         method: 'GET',
-        url: 'https://play.google.com/store/search?q=' + url
-
+        url: finalserchlinks
     }, function (err, response, html, callback) {
-
         if (err) return console.error(err);
 
-        // get the HTML body from google
+        // get the HTML body from google.com
         $ = cheerio.load(html);
-        var href;
-        var searchLink = [];
-        $('a.card-click-target').each(function () {
-            var a = $(this);
-            href = a.attr('href');
-            if (href && href.indexOf('/store/apps/details?id=') != -1) {
-                searchLink.push({ key: href });
+        var wordOfDay = [];
+        var main = $('.main-content')
+        // getting game title class
+        var t = main.find('.document-title');
+        var info = main.find('.meta-info ');
+        //getting game info
+        var title = t.find('.id-app-title').text();
+        //getting game info class
+        var pubdata = info.find('[itemprop=datePublished]').text();
+        var size = info.find('[itemprop=fileSize]').text();
+        // var des = main.find('[jsname=C4s9Ed]').text();
+        // var p=  $('[jsname=C4s9Ed]')
+        // var des=p.find('p').text();
+        var des = [];
+        $('p').each(function (i, elem) {
+            des[i] = $(this).text();
 
-            }
-})
-      console.log(searchLink[0])
-
-        //game link for seraching game detail
-        var finalserchlinks = 'https://play.google.com' + searchLink[0].key;
-        console.log('searchLink - ', finalserchlinks);
-        // use Cheerio to make request for game details
-        var cat;
-
-        request({  // 
-            method: 'GET',
-            url: finalserchlinks
-        }, function (err, response, html, callback) {
-            if (err) return console.error(err);
-
-            // get the HTML body from google.com
-            $ = cheerio.load(html);
-            var wordOfDay = [];
-            var main = $('.main-content')
-            // getting game title class
-            var t = main.find('.document-title');
-            var info = main.find('.meta-info ');
-            //getting game info
-            var title = t.find('.id-app-title').text();
-            //getting game info class
-            var pubdata = info.find('[itemprop=datePublished]').text();
-            var size = info.find('[itemprop=fileSize]').text();
-            var des = main.find('[jsname=C4s9Ed]').text();
-            $('a.document-subtitle.category').filter(function () {
-
-                var data = $(this);
-                cat = data.children().first().text();
-
-            })
-            // create an object
-            wordOfDay.push({ gameTitle: title, Gametype: cat, datePublished: pubdata, fileSize: size, Info: des })
+        });
+        console.log('description', des[0]);
 
 
-            /**
-            *  give the status about game
-            */
-            var gameStatus = [];
-            //retriving package name and converting into unique number
-            var sp = searchLink[0].key.split('=')
-            var final = sp[1].split('.')
-            var pack = final[1];
-            console.log(pack);
-            var g = [];
-            for (var i = 0; i < pack.length; i++) {
-             g.push(pack.charCodeAt(i));
-            }
-            
-            // var hash = 5381;
-            // for (i = 0; i < pack.length; i++) {
-            //     hash = (hash * 33) ^ pack.charCodeAt(--i) /* hash * 33 + c */
-            // }
-           var s = '';
-            s = s + g.slice(0, 2);
-            var str2 = s.replace(/\,/g, "");
-            console.log(str2);
-              client.hset(['Sports', str2,pack], redis.print);
-            console.log(str2);
-            // if (cat == 'Sports') {
-            //     client.exists(str2, function (err, reply) {
-            //         if (reply === 1) {
-            //             console.log('exists :-It is Sport game ');
-            //         } else {
-            //             console.log('doesn\'t exist:- It is Sport game ');
-            //             client.hset([str2, sp[1], "Is Sport game"], redis.print);
-            //         }
-            //     });
+        $('a.document-subtitle.category').filter(function () {
 
-            // }
-            // else {
-            //     client.exists(str2, function (err, reply) {
-            //         if (reply === 1) {
-            //             console.log('exists :-It is Not Sport game ');
-            //         } else {
-            //             console.log('doesn\'t exist :- It is Not Sport game');
-            //             client.hset([str2, sp[1], "It is Not Sport game"], redis.print);
-            //         }
-            //     });
+            var data = $(this);
+            cat = data.children().first().text();
 
-
-            // }
+        })
+        // create an object
+        wordOfDay.push({
+            gameTitle: title,
+            Gametype: cat,
+            datePublished: pubdata,
+            fileSize: size,
+            description: des[0],
+        })
 
 
 
-            //storing game details
+        // Storing  data to redish
+        db.hset([finalhkey, url, cat], redis.print);
+
+
+
+
+        if (!des[0] == '') {
+            // storing game details to firbase
             var gameRef = firebase.database().ref("Game/gameDetails");
-
             gameRef.once('value', function (snapshot) {
-                if (!snapshot.hasChild(title)) {
+                if (!snapshot.hasChild(finalhkey)) {
                     console.log("That Game name not exists");
-                    gameRef.child(title).set({
+                    gameRef.child(finalhkey).set({
                         gameTitle: title,
                         Gametype: cat,
                         datePublished: pubdata,
                         fileSize: size,
-                        description: des,
-                        pack:str2
-
+                        description: des[0],
+                        key: finalhkey,
+                        package: hash,
+                        package_name: url
                     });
 
-                    gameRef.orderByChild('gameTitle').equalTo(title).on('child_added', function (data) {
+                    // Retriving data from firebase
+                    gameRef.orderByChild('key').equalTo(finalhkey).on('child_added', function (data) {
                         var d = data.val();
                         res.send(d);
                         console.log("info", d);
-                    })
+                    });
 
                 }
 
                 else {
                     console.log("That Game name already exists");
                     var d = snapshot.val();
-                    console.log("info", d[title]);
-                    res.send(d[title]);
+                    console.log("info", d[finalhkey]);
+                    res.send(d[finalhkey]);
                 }
 
             });
+
+        }
+        else {
+            console.log('Description Not prasent')
+        }
+
+
+    });
+    // });
+});
+
+//post call for gametype
+app.post('/getGameType', function (req, res) {
+    var url = req.body.url;
+    console.log(url)
+
+    var hash = 5387;
+    for (i = 0; i < url.length; i++) {
+        char = url.charCodeAt(i);
+        hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+    }
+    //Retriving last four digits 
+    var hashkey = hash.toString();
+    var finalhkey = hashkey.substr(hashkey.length - 3, hashkey.length)
+    console.log(finalhkey, 'j', hash)
+
+    // use Cheerio to make request for play Store search
+    //     request({
+    //         method: 'GET',
+    //         url: 'https://play.google.com/store/search?q=' + url
+
+    //     }, function (err, response, html, callback) {
+
+    //         if (err) return console.error(err);
+
+    //         // get the HTML body from google
+    //         $ = cheerio.load(html);
+    //         var href;
+    //         var searchLink = [];
+    //         $('a.card-click-target').each(function () {
+    //             var a = $(this);
+    //             href = a.attr('href');
+    //             if (href && href.indexOf('/store/apps/details?id=') != -1) {
+    //                 searchLink.push({ key: href });
+
+    //             }
+    // })
+    //       console.log(searchLink[0])
+
+    //game link for seraching game detail
+    var finalserchlinks = 'https://play.google.com/store/apps/details?id=' + url;
+    console.log('searchLink - ', finalserchlinks);
+    // use Cheerio to make request for game details
+    var cat;
+
+    request({  // 
+        method: 'GET',
+        url: finalserchlinks
+    }, function (err, response, html, callback) {
+        if (err) return console.error(err);
+
+        // get the HTML body from google.com
+        $ = cheerio.load(html);
+        var wordOfDay = [];
+        var main = $('.main-content')
+        // getting game title class
+        var t = main.find('.document-title');
+        var info = main.find('.meta-info ');
+        //getting game info
+        var title = t.find('.id-app-title').text();
+        //getting game info class
+        var pubdata = info.find('[itemprop=datePublished]').text();
+        var size = info.find('[itemprop=fileSize]').text();
+        // var des = main.find('[jsname=C4s9Ed]').text();
+        // var p=  $('[jsname=C4s9Ed]')
+        // var des=p.find('p').text();
+        var des = [];
+        $('p').each(function (i, elem) {
+            des[i] = $(this).text();
+
+        });
+
+        $('a.document-subtitle.category').filter(function () {
+
+            var data = $(this);
+            cat = data.children().first().text();
+
+        })
+        // create an object
+        wordOfDay.push({
+            gameTitle: title,
+            Gametype: cat
+        })
+        // res.send(wordOfDay);
+        var gameDes = [];
+        //checking game type and category from redis 
+
+        db.exists(cat, function (err, reply) {
+
+            if (reply === 1) {
+                db.hgetAsync(finalhkey, url).then(function (data) {
+                    console.log(title, 'is' + " " + data + " " + 'category')
+                    var info = title + 'is' + " " + data + " " + 'category';
+                    gameDes.push({ GameNzme: title, Catageory: cat, des: info })
+                    console.log(gameDes)
+
+                    if (cat == 'Sports') {
+                        console.log(title, 'is sport game')
+                    }
+                    else {
+                        console.log(title, 'is not sport game')
+                    }
+                })
+
+            } else {
+
+                db.hset([finalhkey, url, cat], redis.print);
+                db.hgetAsync(finalhkey, url).then(function (data) {
+                    console.log(title, 'is' + " " + data + " " + 'category')
+                    var info = title + 'is' + " " + data + " " + 'category and Sport game';
+
+                    console.log(gameDes)
+                    if (cat == 'Sports') {
+                        gameDes.push({ GameNzme: title, Catageory: cat, des: info })
+                    }
+                    else {
+                        var info = title + 'is' + " " + data + " " + 'category and not Sport game';
+                        gameDes.push({ GameNzme: title, Catageory: cat, des: info })
+                    }
+                })
+            }
         });
     });
+    // });
 });
 // start app on localhost port 3000
-var port = process.env.PORT || 3004;
+var port = process.env.PORT || 3006;
 app.listen(port, function () {
     console.log('listening on port ' + port);
 });

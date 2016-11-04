@@ -1,21 +1,34 @@
 angular.module('MyApp')
 
-    .controller('searchCtrl', function ($scope, $http, Upload,toastr) {
+    .controller('searchCtrl', function ($scope, $http, Upload, toastr) {
         $scope.find = function () {
             var gameName = { 'url': this.name };
 
 
             //sending game name to server
-            $http.post('http://localhost:3004/game', gameName).success(function (data) {
+            // $http.post('http://localhost:3006/getAppDetails', gameName).success(function (data) {
+            //     if (data) {
+            //         console.log(data)
+            //         var as = []
+            //         as.push(data)
+            //         $scope.data = as;
+
+            //     }
+            //     else {
+            //         toastr.error('error');
+            //     }
+
+            // })
+             $http.post('http://localhost:3006/getGameType', gameName).success(function (data) {
                 if (data) {
                     console.log(data)
                     var as = []
                     as.push(data)
-                    $scope.data = as;
+                    // $scope.data = as;
 
                 }
                 else {
-                   toastr.error('error');
+                    toastr.error('error');
                 }
 
             })
@@ -29,7 +42,7 @@ angular.module('MyApp')
                 // FileReader are supported.
                 getAsText(file);
             } else {
-                 toastr.error('FileReader are not supported in this browser.');
+                toastr.error('FileReader are not supported in this browser.');
             }
             function getAsText(fileToRead) {
                 var reader = new FileReader();
@@ -49,53 +62,72 @@ angular.module('MyApp')
                 var allTextLines = csv.split(/\r\n|\n/);
                 var s = []
                 var tarr = [];
-                for (var i = 0; i < allTextLines.length; i++) {
+                for (var i = 1; i < allTextLines.length; i++) {
                     tarr.push(allTextLines[i])
                 }
 
-          
-                var h = tarr.toString();
-                var s = h.split(',')
-                //  console.log('dfsd',s)
-                var ka = [];
-                var p = 0;
-                for (p = 6; p < s.length; p++) {
 
-                    ka.push(s[p]);
-                  p++;p++;p++;p++;
-                    
+                //     var h = tarr.toString();
+                //     var s = h.split(',')
+                //     //  console.log('dfsd',s)
+                //     var ka = [];
+                //     var p = 0;
+                //     for (p = 6; p < s.length; p++) {
 
-                }
-            console.log('gh',ka)
+                //         ka.push(s[p]);
+                //       p++;p++;p++;p++;
+
+
+                //     }
+                // console.log('gh',ka)
                 var as = []
-                for (var i = 0; i < ka.length; i++) {
-                    var gameName = { 'url': ka[i] };
-                    // console.log(gameName)
-                  //sending game name to server
-                    $http.post('http://localhost:3004/game', gameName).success(function (data) {
+                var d = new Date();
+                var stime = 0;
+                var etime = 0;
+                var ttime = 0;
+                for (var i = 1; i < tarr.length - 1; i++) {
+
+                    var gameName = { 'url': tarr[i] };
+                    console.log(gameName)
+
+                    stime = stime + d.getMilliseconds();
+                    console.log('start time', stime);
+                    //   sending game name to server
+
+                    $http.post('http://localhost:3006/getAppDetails', gameName).success(function (data) {
                         if (data) {
-                            console.log(data)
+
                             as.push(data)
-                          }
+
+ 
+                        }
                         else {
                             toastr.error('error');
                         }
 
                     })
+                    etime = etime + d.getMilliseconds();
+
+                    console.log('end time', etime)
+
                 }
+                ttime = etime - stime;
+                console.log('tota  time', ttime);
+                //  console.log(as)
                 $scope.data = as;
+
             }
 
             function errorHandler(evt) {
                 if (evt.target.error.name == "NotReadableError") {
-                     toastr.error("Canno't read file !");
+                    toastr.error("Canno't read file !");
                 }
             }
 
 
 
 
-         
+
         }
 
 

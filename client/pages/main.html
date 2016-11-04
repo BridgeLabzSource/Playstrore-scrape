@@ -61,7 +61,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="g in data">
+    <tr ng-repeat="g in data track by $index">
       <th scope="row">{{$index + 1 }}</th>
       <td>{{g.gameTitle}}</td>
        <td>{{g.pack}}</td>
