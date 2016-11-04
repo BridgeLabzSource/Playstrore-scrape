@@ -21,10 +21,10 @@ angular.module('MyApp')
             // })
              $http.post('http://localhost:3006/getGameType', gameName).success(function (data) {
                 if (data) {
-                    console.log(data)
+                    console.log(data[0])
                     var as = []
-                    as.push(data)
-                    // $scope.data = as;
+                    as.push(data[0])
+                    $scope.data = as;
 
                 }
                 else {

@@ -121,7 +121,7 @@ app.post('/getAppDetails', function (req, res) {
                     console.log("That Game name not exists");
                     gameRef.child(finalhkey).set({
                         gameTitle: title,
-                        Gametype: cat,
+                        Catageory: cat,
                         datePublished: pubdata,
                         fileSize: size,
                         description: des[0],
@@ -266,15 +266,19 @@ app.post('/getGameType', function (req, res) {
                 db.hset([finalhkey, url, cat], redis.print);
                 db.hgetAsync(finalhkey, url).then(function (data) {
                     console.log(title, 'is' + " " + data + " " + 'category')
-                    var info = title + 'is' + " " + data + " " + 'category and Sport game';
+                    var info = title +" " + 'is' + " " + data + " " + 'category and Sport game';
 
-                    console.log(gameDes)
+                  
                     if (cat == 'Sports') {
-                        gameDes.push({ GameNzme: title, Catageory: cat, des: info })
+                        gameDes.push({ gameTitle: title, Catageory: cat, description: info })
+                        res.send(gameDes);
+                          console.log(gameDes)
                     }
                     else {
-                        var info = title + 'is' + " " + data + " " + 'category and not Sport game';
-                        gameDes.push({ GameNzme: title, Catageory: cat, des: info })
+                        var info = title +" " + 'is' + " " + data + " " + 'category and not Sport game';
+                        gameDes.push({ gameTitle: title, Catageory: cat, description: info })
+                         res.send(gameDes);
+                          console.log(gameDes)
                     }
                 })
             }
