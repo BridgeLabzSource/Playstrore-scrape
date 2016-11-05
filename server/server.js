@@ -173,7 +173,7 @@ app.post('/getCatagoryType', function (req, res) {
     var finalhkey = hashkey.substr(hashkey.length - 3, hashkey.length)
     console.log(finalhkey, 'j', hash)
 
-    // use Cheerio to make request for play Store search
+    // use Cheerio to make request for play Store search for game name
     //     request({
     //         method: 'GET',
     //         url: 'https://play.google.com/store/search?q=' + url
@@ -258,50 +258,6 @@ app.post('/getCatagoryType', function (req, res) {
             res.send(final);
         })
 
-
-
-
-        //checking game type and category from redis 
-        // var isgame=['Sports',]
-        // var flag=false;
-        // db.exists(cat, function (err, reply) {
-
-        //     if (reply === 1) {
-        //         db.hgetAsync(finalhkey, url).then(function (data) {
-
-
-        //           if (data == 'Adventure'||'Communication'||'Sports') {
-        //                  flag=true;
-        //             }
-        //             else {
-        //                  flag=false;
-        //             }
-        //             gameDes.push({ GameName: title, Catageory: data, IsGame: flag });
-        //               res.send(gameDes)
-        //                  console.log(gameDes);
-        //         })
-
-        //     } else {
-
-        //         db.hset([finalhkey, url, cat], redis.print);
-        //         db.hgetAsync(finalhkey, url).then(function (data) {
-        //               console.log('dat',data)
-        //         if (data == 'Adventure'||'Communication'||'Sports'){
-        //                  flag=true;
-        //                    gameDes.push({ GameNzme: title, Catageory: data, IsGame: flag });
-        //                  console.log(gameDes);
-        //                  res.send(gameDes)
-        //             }
-        //             else {
-        //                  flag=false;
-        //                    gameDes.push({ GameNzme: title, Catageory: data, IsGame: flag });
-        //                  console.log(gameDes);
-        //                  res.send(gameDes)
-        //             }
-
-        //         })
-        //     }
-        // });
     });
     // });
 });
