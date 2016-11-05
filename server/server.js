@@ -228,13 +228,13 @@ app.post('/getCatagoryType', function (req, res) {
             des[i] = $(this).text();
 
         });
-       var ty;
+        var ty;
         $('a.document-subtitle.category').filter(function () {
 
             var data = $(this);
-               var href = data.attr('href');
-                ty=href.split('/');
-               console.log(ty[4])
+            var href = data.attr('href');
+            ty = href.split('/');
+            console.log(ty[4])
             cat = data.children().first().text();
 
         })
@@ -245,38 +245,31 @@ app.post('/getCatagoryType', function (req, res) {
         })
         // res.send(wordOfDay);
         var gameDes = [];
-        var slp=ty[4].split('_');
-        var ty1=slp[0];
-        
+        var slp = ty[4].split('_');
+        var ty1 = slp[0];
+        var flag = false;
+        var final=[];
         console.log(ty1)
-      if(ty1=='GAME')
-      {       var cato='Catageory:'+cat+""+"It is Game";
-               db.hset([finalhkey, url, cato], redis.print);
-                  db.hgetAsync(finalhkey, url).then(function (data) {
-                      res.send(data);
-                  })
-
-       }
-       else{
-            var cato='Catageory:'+cat+""+"It is Not Game";
-               db.hset([finalhkey, url, cato], redis.print);
-               db.hgetAsync(finalhkey, url).then(function (data) {
-                      res.send(data);
-                  })
+        if (ty1 == 'GAME') flag = true;
+        var cato = 'Catageory=' + cat + "::" + "isGame=" + flag;
+        db.hset([finalhkey, url, cato], redis.print);
+        db.hgetAsync(finalhkey, url).then(function (data) {
+            final.push({Catageory:cat,gameStatus:cato})
+            res.send(final);
+        })
 
 
-       }
 
 
         //checking game type and category from redis 
         // var isgame=['Sports',]
         // var flag=false;
         // db.exists(cat, function (err, reply) {
-      
+
         //     if (reply === 1) {
         //         db.hgetAsync(finalhkey, url).then(function (data) {
-                  
-                  
+
+
         //           if (data == 'Adventure'||'Communication'||'Sports') {
         //                  flag=true;
         //             }
@@ -305,7 +298,7 @@ app.post('/getCatagoryType', function (req, res) {
         //                  console.log(gameDes);
         //                  res.send(gameDes)
         //             }
-                  
+
         //         })
         //     }
         // });
