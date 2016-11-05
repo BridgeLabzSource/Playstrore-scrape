@@ -159,7 +159,7 @@ app.post('/getAppDetails', function (req, res) {
 });
 
 //post call for gametype
-app.post('/getGameType', function (req, res) {
+app.post('/getCatagoryType', function (req, res) {
     var url = req.body.url;
     console.log(url)
 
@@ -228,10 +228,13 @@ app.post('/getGameType', function (req, res) {
             des[i] = $(this).text();
 
         });
-
+       var ty;
         $('a.document-subtitle.category').filter(function () {
 
             var data = $(this);
+               var href = data.attr('href');
+                ty=href.split('/');
+               console.log(ty[4])
             cat = data.children().first().text();
 
         })
@@ -242,47 +245,70 @@ app.post('/getGameType', function (req, res) {
         })
         // res.send(wordOfDay);
         var gameDes = [];
+        var slp=ty[4].split('_');
+        var ty1=slp[0];
+        
+        console.log(ty1)
+      if(ty1=='GAME')
+      {       var cato='Catageory:'+cat+""+"It is Game";
+               db.hset([finalhkey, url, cato], redis.print);
+                  db.hgetAsync(finalhkey, url).then(function (data) {
+                      res.send(data);
+                  })
+
+       }
+       else{
+            var cato='Catageory:'+cat+""+"It is Not Game";
+               db.hset([finalhkey, url, cato], redis.print);
+               db.hgetAsync(finalhkey, url).then(function (data) {
+                      res.send(data);
+                  })
+
+
+       }
+
+
         //checking game type and category from redis 
-
-        db.exists(cat, function (err, reply) {
-
-            if (reply === 1) {
-                db.hgetAsync(finalhkey, url).then(function (data) {
-                    console.log(title, 'is' + " " + data + " " + 'category')
-                    var info = title + 'is' + " " + data + " " + 'category';
-                    gameDes.push({ GameNzme: title, Catageory: cat, des: info })
-                    console.log(gameDes)
-
-                    if (cat == 'Sports') {
-                        console.log(title, 'is sport game')
-                    }
-                    else {
-                        console.log(title, 'is not sport game')
-                    }
-                })
-
-            } else {
-
-                db.hset([finalhkey, url, cat], redis.print);
-                db.hgetAsync(finalhkey, url).then(function (data) {
-                    console.log(title, 'is' + " " + data + " " + 'category')
-                    var info = title +" " + 'is' + " " + data + " " + 'category and Sport game';
-
+        // var isgame=['Sports',]
+        // var flag=false;
+        // db.exists(cat, function (err, reply) {
+      
+        //     if (reply === 1) {
+        //         db.hgetAsync(finalhkey, url).then(function (data) {
                   
-                    if (cat == 'Sports') {
-                        gameDes.push({ gameTitle: title, Catageory: cat, description: info })
-                        res.send(gameDes);
-                          console.log(gameDes)
-                    }
-                    else {
-                        var info = title +" " + 'is' + " " + data + " " + 'category and not Sport game';
-                        gameDes.push({ gameTitle: title, Catageory: cat, description: info })
-                         res.send(gameDes);
-                          console.log(gameDes)
-                    }
-                })
-            }
-        });
+                  
+        //           if (data == 'Adventure'||'Communication'||'Sports') {
+        //                  flag=true;
+        //             }
+        //             else {
+        //                  flag=false;
+        //             }
+        //             gameDes.push({ GameName: title, Catageory: data, IsGame: flag });
+        //               res.send(gameDes)
+        //                  console.log(gameDes);
+        //         })
+
+        //     } else {
+
+        //         db.hset([finalhkey, url, cat], redis.print);
+        //         db.hgetAsync(finalhkey, url).then(function (data) {
+        //               console.log('dat',data)
+        //         if (data == 'Adventure'||'Communication'||'Sports'){
+        //                  flag=true;
+        //                    gameDes.push({ GameNzme: title, Catageory: data, IsGame: flag });
+        //                  console.log(gameDes);
+        //                  res.send(gameDes)
+        //             }
+        //             else {
+        //                  flag=false;
+        //                    gameDes.push({ GameNzme: title, Catageory: data, IsGame: flag });
+        //                  console.log(gameDes);
+        //                  res.send(gameDes)
+        //             }
+                  
+        //         })
+        //     }
+        // });
     });
     // });
 });

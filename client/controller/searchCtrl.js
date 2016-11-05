@@ -19,7 +19,7 @@ angular.module('MyApp')
             //     }
 
             // })
-             $http.post('http://localhost:3006/getGameType', gameName).success(function (data) {
+             $http.post('http://localhost:3006/getCatagoryType', gameName).success(function (data) {
                 if (data) {
                     console.log(data[0])
                     var as = []
