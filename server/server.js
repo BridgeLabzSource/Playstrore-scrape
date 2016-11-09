@@ -31,7 +31,12 @@ app.post('/getAppDetails', function (req, res) {
     var hashkey = hash.toString();
     var finalhkey = hashkey.substr(hashkey.length - 3, hashkey.length)
     console.log(finalhkey, 'j', hash)
-
+  
+    
+    /*
+             when u search by using game name not package  remove comments then
+    */
+    
     // use Cheerio to make request for play Store search
     //     request({
     //         method: 'GET',
