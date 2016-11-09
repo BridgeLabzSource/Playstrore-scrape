@@ -88,7 +88,6 @@ angular.module('MyApp')
                 console.log('tota  time', ttime);
                 //  console.log(as)
                 $scope.data = as;
-
             }
 
             function errorHandler(evt) {

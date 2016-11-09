@@ -20,5 +20,11 @@
     "request": "^2.75.0"
   },
   "devDependencies": {},
-  "description": ""
+  "description": "",
+  "config": {
+    "unsafe-perm": true
+  },
+  "engines": {
+    "node": "6.3.0"
+  }
 }
