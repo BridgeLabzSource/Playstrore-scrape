@@ -5,7 +5,7 @@ angular.module('MyApp')
                 'url': this.name
             };
             // sending game name to server
-            $http.post('https://playstrore-scrape.herokuapp.com/getAppDetails', gameName).success(function (data) {
+            $http.post('https://playstore-scrape.herokuapp.com/getAppDetails', gameName).success(function (data) {
                 if (data) {
                     console.log(data)
                     var as = []
@@ -74,7 +74,7 @@ angular.module('MyApp')
                     stime = stime + d.getMilliseconds();
                     console.log('start time', stime);
                     //   sending game name to server
-                    $http.post('https://playstrore-scrape.herokuapp.com/getAppDetails', gameName).success(function (data) {
+                    $http.post('https://playstore-scrape.herokuapp.com/getAppDetails', gameName).success(function (data) {
                         if (data) {
                             as.push(data)
                         } else {
