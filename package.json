@@ -21,10 +21,18 @@
   },
   "devDependencies": {},
   "description": "",
-  "config": {
-    "unsafe-perm": true
-  },
-  "engines": {
+   "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BridgeLabzSource/Playstrore-scrape.git.git"
+    },
+    "bugs": {
+        "url": "https://github.com/BridgeLabzSource/Playstrore-scrape.git/issues"
+    },
+    "homepage": "https://github.com/BridgeLabzSource/Playstrore-scrape.git#readme",
+    "config": {
+        "unsafe-perm": true
+    }, 
+    "engines": {
     "node": "6.3.0"
   }
 }
