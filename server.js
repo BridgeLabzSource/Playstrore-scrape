@@ -10,8 +10,9 @@ var express = require('express'),
     redis = require('redis'),
     Promise = require("bluebird"),
     db = redis.createClient(),
+    cors=require('cors'),
     app = express(),
-    port = process.env.PORT || 3009,
+    port = process.env.PORT || 3010,
     firebase = require('./firbase.js');
 
 Promise.promisifyAll(require("redis"));
@@ -19,11 +20,12 @@ Promise.promisifyAll(require("redis"));
 /**
  * configure app
  */
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(__dirname, './client')));
 
 /*
  * in this function getAppDetails
