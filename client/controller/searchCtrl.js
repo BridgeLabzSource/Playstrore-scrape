@@ -19,6 +19,8 @@ angular.module('MyApp')
             //     }
 
             // })
+            
+              //sending package name to server
              $http.post('http://localhost:3006/getCatagoryType', gameName).success(function (data) {
                 if (data) {
                     console.log(data[0])
@@ -66,7 +68,8 @@ angular.module('MyApp')
                     tarr.push(allTextLines[i])
                 }
 
-
+  /* remove comment and use  when u reading file which containes game name not package name
+  */
                 //     var h = tarr.toString();
                 //     var s = h.split(',')
                 //     //  console.log('dfsd',s)
